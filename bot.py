@@ -112,6 +112,14 @@ async def on_command_error(context, error):
         )
         await context.send(embed=embed)
         print(f"Private Message Attempted by {context.message.author} (ID: {context.message.author.id})")
+    elif isinstance(error, commands.MaxConcurrencyReached):
+        embed = discord.Embed(
+            title="Error!",
+            description="There is a queue, try again in a few seconds!",
+            color=0xE02B2B
+        )
+        await context.send(embed=embed)
+        print(f"Stuck in queue {context.message.author} (ID: {context.message.author.id})")
 
 
 # Run the bot with the token

@@ -5,6 +5,7 @@ import aiohttp
 import discord
 import math
 from discord.ext import commands
+from discord.ext.commands.cooldowns import BucketType
 import asyncio
 
 if not os.path.isfile("config.json"):
@@ -24,6 +25,7 @@ class map(commands.Cog, name="map"):
 
     @commands.command(name="find_player")
     @commands.guild_only()
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
     async def find_player(self, context, username: str):
         """
         Find player & nodes that the player is currently on
@@ -58,7 +60,7 @@ class map(commands.Cog, name="map"):
 
                     while True:
                         try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
@@ -120,6 +122,7 @@ class map(commands.Cog, name="map"):
 
     @commands.command(name="find_clan")
     @commands.guild_only()
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
     async def find_clan(self, context, clan: str):
         """
         Find clan & nodes that they are on
@@ -154,7 +157,7 @@ class map(commands.Cog, name="map"):
 
                     while True:
                         try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
@@ -215,6 +218,7 @@ class map(commands.Cog, name="map"):
 
     @commands.command(name="find_item")
     @commands.guild_only()
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
     async def find_item(self, context, item: str, level: int, realm: int):
         """
         Find items on the map:\n !find_item [gold,food,ore,swamp,bl,gl,gem] level realm \nExample: !find_item gold 12 23
@@ -270,7 +274,7 @@ class map(commands.Cog, name="map"):
 
                     while True:
                         try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()

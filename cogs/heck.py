@@ -6,6 +6,7 @@ import discord
 import asyncio
 import math
 from discord.ext import commands
+from discord.ext.commands.cooldowns import BucketType
 
 if not os.path.isfile("config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -24,6 +25,7 @@ class allies(commands.Cog, name="allies"):
 
     @commands.command(name="allies")
     @commands.guild_only()
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
     async def allies(self, context, *, allyname):
         """
         Return a list of allies from given username.
@@ -60,7 +62,7 @@ class allies(commands.Cog, name="allies"):
 
                     while True:
                         try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
@@ -124,7 +126,8 @@ class allies(commands.Cog, name="allies"):
 
     @commands.command(name="price")
     @commands.guild_only()
-    async def allies(self, context, *, price):
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
+    async def price(self, context, *, price):
         """
         Return a list of allies from given price.
         """
@@ -160,7 +163,7 @@ class allies(commands.Cog, name="allies"):
 
                     while True:
                         try:
-                            reaction, user = await self.bot.wait_for('reaction_add', timeout=60.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
