@@ -1,0 +1,11 @@
+{
+  "bot_prefix": "!",
+  "token": "token",
+  "api_token": "token",
+  "base_url": "http://127.0.0.1:8000/api-auth",
+  "application_id": "app_id",
+  "owners": [
+    1234,
+    12345
+  ]
+}
