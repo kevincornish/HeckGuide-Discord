@@ -64,6 +64,7 @@ class map(commands.Cog, name="map"):
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
+                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:
@@ -161,6 +162,7 @@ class map(commands.Cog, name="map"):
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
+                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:
@@ -278,6 +280,7 @@ class map(commands.Cog, name="map"):
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
+                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:

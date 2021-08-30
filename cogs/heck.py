@@ -66,6 +66,7 @@ class allies(commands.Cog, name="allies"):
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
                             await message.delete()
+                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:
