@@ -6,6 +6,7 @@ import sys
 import discord
 from discord.ext import commands, tasks
 from discord.ext.commands import Bot
+from discord.utils import get
 
 if not os.path.isfile("config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -18,7 +19,7 @@ intents = discord.Intents.default()
 bot = Bot(command_prefix=config["bot_prefix"], intents=intents)
 
 
-# The code in this even is executed when the bot is ready
+# bot is ready
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user.name}")
@@ -26,14 +27,14 @@ async def on_ready():
     status_task.start()
 
 
-# Setup the game status task of the bot
+# game status task of the bot
 @tasks.loop(minutes=1.0)
 async def status_task():
     statuses = ["Kingdoms of Heckfire", f"{config['bot_prefix']}help"]
     await bot.change_presence(activity=discord.Game(random.choice(statuses)))
 
 
-# Removes the default help command of discord.py to be able to create our custom help command.
+# Removes the default help command of discord.py
 bot.remove_command("help")
 
 if __name__ == "__main__":
@@ -47,8 +48,15 @@ if __name__ == "__main__":
                 exception = f"{type(e).__name__}: {e}"
                 print(f"Failed to load extension {extension}\n{exception}")
 
+# everytime someone joins
+@bot.event 
+async def on_member_join(member):
+  role_id = 881981915341676566
+  role = get(member.guild.roles, id=role_id)
+  await member.add_roles(role)
 
-# The code in this event is executed every time someone sends a message, with or without the prefix
+
+# every time someone sends a message, with or without the prefix
 @bot.event
 async def on_message(message):
     # Ignores if a command is being executed by a bot or by the bot itself
@@ -62,7 +70,7 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
-# The code in this event is executed every time a command has been *successfully* executed
+# every time a command has been *successfully* executed
 @bot.event
 async def on_command_completion(ctx):
     fullCommandName = ctx.command.qualified_name
@@ -72,7 +80,7 @@ async def on_command_completion(ctx):
         f"Executed {executedCommand} command in {ctx.guild.name} (ID: {ctx.message.guild.id}) by {ctx.message.author} (ID: {ctx.message.author.id})")
 
 
-# The code in this event is executed every time a valid commands catches an error
+# every time a valid commands catches an error
 @bot.event
 async def on_command_error(context, error):
     if isinstance(error, commands.CommandOnCooldown):
