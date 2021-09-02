@@ -7,6 +7,7 @@ import math
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
 import asyncio
+from prettytable import PrettyTable
 
 if not os.path.isfile("config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -40,21 +41,24 @@ class map(commands.Cog, name="map"):
             else:
                 map = response['results']
                 count = math.ceil(response['count'] / 20)
-                embed = discord.Embed(title=f"__**{username} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
                 if not map:
                     await context.send("No results.")
                 else:
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                    t.align = "l"
                     for player in map:
                         name = player['name']
-                        owner_username = player['owner_username']
                         owner_group_name = player['owner_group_name']
+                        owner_username = player['owner_username']
                         x = player['x']
                         y = player['y']
                         world_id = player['world_id']
-                        last_modified = player['last_modified']
-                        embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)                  
-                    embed.set_footer(text=f'Page {page} of {count}')
-                    message = await context.send(embed=embed)
+                        t.add_row([name, owner_group_name, owner_username, x, y, world_id])
+                    message = await context.send(f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
                     for b in self.buttons:
                         await message.add_reaction(b)
 
@@ -63,8 +67,6 @@ class map(commands.Cog, name="map"):
                             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
-                            await message.delete()
-                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:
@@ -78,7 +80,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{username} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -86,14 +93,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)                 
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{username} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{username}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
                         if em == '◀️':
                             page = page-1
@@ -103,7 +106,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{username} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -111,14 +119,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)                   
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{username} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{username}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
 
     @commands.command(name="find_clan")
@@ -138,21 +142,24 @@ class map(commands.Cog, name="map"):
             else:
                 map = response['results']
                 count = math.ceil(response['count'] / 20)
-                embed = discord.Embed(title=f"__**{clan} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
                 if not map:
                     await context.send("No results.")
                 else:
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                    t.align = "l"
                     for player in map:
                         name = player['name']
-                        owner_username = player['owner_username']
                         owner_group_name = player['owner_group_name']
+                        owner_username = player['owner_username']
                         x = player['x']
                         y = player['y']
                         world_id = player['world_id']
-                        last_modified = player['last_modified']
-                        embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)                  
-                    embed.set_footer(text=f'Page {page} of {count}')
-                    message = await context.send(embed=embed)
+                        t.add_row([name, owner_group_name, owner_username, x, y, world_id])
+                    message = await context.send(f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
                     for b in self.buttons:
                         await message.add_reaction(b)
 
@@ -176,7 +183,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{clan} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -184,14 +196,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)                
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{clan} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{clan}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
                         if em == '◀️':
                             page = page-1
@@ -201,7 +209,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{clan} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -209,14 +222,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)              
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{clan} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{clan}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
     @commands.command(name="find_item")
     @commands.guild_only()
@@ -256,21 +265,24 @@ class map(commands.Cog, name="map"):
             else:
                 map = response['results']
                 count = math.ceil(response['count'] / 20)
-                embed = discord.Embed(title=f"__**{newname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
                 if not map:
                     await context.send("No results.")
                 else:
-                    for item in map:
-                        name = item['name']
-                        owner_username = item['owner_username']
-                        owner_group_name = item['owner_group_name']
-                        x = item['x']
-                        y = item['y']
-                        world_id = item['world_id']
-                        last_modified = item['last_modified']
-                        embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)
-                    embed.set_footer(text=f'Page {page} of {count}')                  
-                    message = await context.send(embed=embed)
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                    t.align = "l"
+                    for player in map:
+                        name = player['name']
+                        owner_group_name = player['owner_group_name']
+                        owner_username = player['owner_username']
+                        x = player['x']
+                        y = player['y']
+                        world_id = player['world_id']
+                        t.add_row([name, owner_group_name, owner_username, x, y, world_id])
+                    message = await context.send(f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
                     for b in self.buttons:
                         await message.add_reaction(b)
 
@@ -294,7 +306,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{newname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -302,14 +319,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')               
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{newname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{newname}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
                         if em == '◀️':
                             page = page-1
@@ -319,7 +332,12 @@ class map(commands.Cog, name="map"):
                             try:
                                 map = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{newname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Name', 'Clan', 'Owner', 'X', 'Y' , 'Realm']
+                                t.align = "l"
                                 for player in map:
                                     name = player['name']
                                     owner_username = player['owner_username']
@@ -327,14 +345,10 @@ class map(commands.Cog, name="map"):
                                     x = player['x']
                                     y = player['y']
                                     world_id = player['world_id']
-                                    last_modified = player['last_modified']
-                                    embed.add_field(name=f'**{name}**', value=f'> Description: {owner_username}\n> Clan: {owner_group_name}\n> X: {x}, Y: {y}\n> Realm: {world_id}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')                 
+                                    t.add_row([name, owner_username, owner_group_name, x, y,world_id])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{newname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{newname}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Name")} \n Page {page} of {count}```')
 
 def setup(bot):
     bot.add_cog(map(bot))

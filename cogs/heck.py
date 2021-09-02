@@ -2,11 +2,11 @@ import json
 import os
 import sys
 import aiohttp
-import discord
 import asyncio
 import math
 from discord.ext import commands
 from discord.ext.commands.cooldowns import BucketType
+from prettytable import PrettyTable
 
 if not os.path.isfile("config.json"):
     sys.exit("'config.json' not found! Please add it and try again.")
@@ -41,22 +41,25 @@ class allies(commands.Cog, name="allies"):
             else:
                 allies = response['results']
                 count = math.ceil(response['count'] / 20)
-                embed = discord.Embed(title=f"__**{allyname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
                 if not allies:
                     await context.send("No results.")
                 else:
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                    t.align = "l"
                     for ally in allies:
                         username = ally['username']
                         group_tag = ally['group_tag']
                         cost = ally['cost']
-                        last_modified = ally['last_modified']
                         grass = ally['biome3_attack_multiplier'] / 100
                         badlands = ally['biome4_attack_multiplier'] / 100
                         swamp = ally['biome5_attack_multiplier'] / 100
                         total = round(grass + badlands + swamp, 2)
-                        embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                    embed.set_footer(text=f'Page {page} of {count}')
-                    message = await context.send(embed=embed)
+                        t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
+                    message = await context.send(f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
                     for b in buttons:
                         await message.add_reaction(b)
 
@@ -65,8 +68,6 @@ class allies(commands.Cog, name="allies"):
                             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
-                            await message.delete()
-                            await context.message.delete()
                             return
                         
                         if user!=self.bot.user:
@@ -80,23 +81,24 @@ class allies(commands.Cog, name="allies"):
                             try:
                                 allies = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{allyname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                                t.align = "l"
                                 for ally in allies:
                                     username = ally['username']
                                     group_tag = ally['group_tag']
                                     cost = ally['cost']
-                                    last_modified = ally['last_modified']
                                     grass = ally['biome3_attack_multiplier'] / 100
                                     badlands = ally['biome4_attack_multiplier'] / 100
                                     swamp = ally['biome5_attack_multiplier'] / 100
                                     total = round(grass + badlands + swamp, 2)
-                                    embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{allyname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{allyname}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
 
                         if em == '◀️':
                             page = page-1
@@ -106,23 +108,24 @@ class allies(commands.Cog, name="allies"):
                             try:
                                 allies = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{allyname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                                t.align = "l"
                                 for ally in allies:
                                     username = ally['username']
                                     group_tag = ally['group_tag']
                                     cost = ally['cost']
-                                    last_modified = ally['last_modified']
                                     grass = ally['biome3_attack_multiplier'] / 100
                                     badlands = ally['biome4_attack_multiplier'] / 100
                                     swamp = ally['biome5_attack_multiplier'] / 100
                                     total = round(grass + badlands + swamp, 2)
-                                    embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{allyname} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{allyname}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
 
 
     @commands.command(name="price")
@@ -143,22 +146,25 @@ class allies(commands.Cog, name="allies"):
             else:
                 allies = response['results']
                 count = math.ceil(response['count'] / 20)
-                embed = discord.Embed(title=f"__**{price} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
                 if not allies:
                     await context.send("No results.")
                 else:
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                    t.align = "l"
                     for ally in allies:
                         username = ally['username']
                         group_tag = ally['group_tag']
                         cost = ally['cost']
-                        last_modified = ally['last_modified']
                         grass = ally['biome3_attack_multiplier'] / 100
                         badlands = ally['biome4_attack_multiplier'] / 100
                         swamp = ally['biome5_attack_multiplier'] / 100
                         total = round(grass + badlands + swamp, 2)
-                        embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                    embed.set_footer(text=f'Page {page} of {count}')
-                    message = await context.send(embed=embed)
+                        t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
+                    message = await context.send(f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
                     for b in buttons:
                         await message.add_reaction(b)
 
@@ -167,7 +173,6 @@ class allies(commands.Cog, name="allies"):
                             reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
                             em = str(reaction.emoji)
                         except asyncio.TimeoutError:
-                            await message.delete()
                             return
                         
                         if user!=self.bot.user:
@@ -181,23 +186,24 @@ class allies(commands.Cog, name="allies"):
                             try:
                                 allies = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{price} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                                t.align = "l"
                                 for ally in allies:
                                     username = ally['username']
                                     group_tag = ally['group_tag']
                                     cost = ally['cost']
-                                    last_modified = ally['last_modified']
                                     grass = ally['biome3_attack_multiplier'] / 100
                                     badlands = ally['biome4_attack_multiplier'] / 100
                                     swamp = ally['biome5_attack_multiplier'] / 100
                                     total = round(grass + badlands + swamp, 2)
-                                    embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{price} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{price}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
 
                         if em == '◀️':
                             page = page-1
@@ -207,22 +213,23 @@ class allies(commands.Cog, name="allies"):
                             try:
                                 allies = response['results']
                                 count = math.ceil(response['count'] / 20)
-                                embed = discord.Embed(title=f"__**{price} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan', 'Cost', 'Grass' , 'Badlands','Swamp', 'Total']
+                                t.align = "l"
                                 for ally in allies:
                                     username = ally['username']
                                     group_tag = ally['group_tag']
                                     cost = ally['cost']
-                                    last_modified = ally['last_modified']
                                     grass = ally['biome3_attack_multiplier'] / 100
                                     badlands = ally['biome4_attack_multiplier'] / 100
                                     swamp = ally['biome5_attack_multiplier'] / 100
                                     total = round(grass + badlands + swamp, 2)
-                                    embed.add_field(name=f'**{username}**', value=f'> Clan: {group_tag}\n> G: {grass}% B: {badlands}% S: {swamp}% Total: {total}%\n> Cost: {cost}\n> Last Updated: {last_modified}',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
+                                    t.add_row([username, group_tag, cost, grass, badlands,swamp,total])
                             except KeyError:
-                                embed = discord.Embed(title=f"__**{price} Results:**__", color=0x03f8fc,timestamp= context.message.created_at)
-                                embed.add_field(name=f'**{price}**', value=f'> No More Results',inline=False)
-                                embed.set_footer(text=f'Page {page} of {count}')
-                            await message.edit(embed = embed)
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
 def setup(bot):
     bot.add_cog(allies(bot))
