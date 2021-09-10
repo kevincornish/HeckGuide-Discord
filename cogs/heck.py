@@ -231,5 +231,94 @@ class allies(commands.Cog, name="allies"):
                             except KeyError:
                                 pass
                             await message.edit(content=f'```{t.get_string(sortby="Total")} \n Page {page} of {count}```')
+
+    @commands.command(name="changes")
+    @commands.guild_only()
+    @commands.max_concurrency(1, per=BucketType.default, wait=False)
+    async def price(self, context, *, name):
+        """
+        Return a list of allies historical names/clans
+        """
+        buttons = ["◀️", "▶️"]
+        async with aiohttp.ClientSession() as session:
+            page = 1
+            raw_response = await session.get(f"{self.base_url}/changes?search={name}&page={page}", headers=self.headers)
+            response = await raw_response.text()
+            response = json.loads(response)
+            if response.get('detail'):
+                await context.send("Token Expired")
+            else:
+                allies = response['results']
+                count = math.ceil(response['count'] / 20)
+                if not allies:
+                    await context.send("No results.")
+                else:
+                    t = PrettyTable()
+                    t.left_padding_width = 0
+                    t.right_padding_width = 0
+                    t.align = "l"
+                    t.field_names = ['Username', 'Clan']
+                    t.align = "l"
+                    for ally in allies:
+                        username = ally['username']
+                        group_tag = ally['group_tag']
+                        t.add_row([username, group_tag])
+                    message = await context.send(f'```{t.get_string(sortby="Username")} \n Page {page} of {count}```')
+                    for b in buttons:
+                        await message.add_reaction(b)
+
+                    while True:
+                        try:
+                            reaction, user = await self.bot.wait_for('reaction_add', timeout=30.0, check=lambda r, u: r.message.id == message.id and u.id == context.author.id)
+                            em = str(reaction.emoji)
+                        except asyncio.TimeoutError:
+                            return
+                        
+                        if user!=self.bot.user:
+                            await message.remove_reaction(emoji=em, member=user)
+
+                        if em == '▶️':
+                            page = page+1
+                            raw_response = await session.get(f"{self.base_url}/changes?search={name}&page={page}", headers=self.headers)
+                            response = await raw_response.text()
+                            response = json.loads(response)
+                            try:
+                                allies = response['results']
+                                count = math.ceil(response['count'] / 20)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan']
+                                t.align = "l"
+                                for ally in allies:
+                                    username = ally['username']
+                                    group_tag = ally['group_tag']
+                                    t.add_row([username, group_tag])
+                            except KeyError:
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Username")} \n Page {page} of {count}```')
+
+                        if em == '◀️':
+                            page = page-1
+                            raw_response = await session.get(f"{self.base_url}/changes?search={name}&page={page}", headers=self.headers)
+                            response = await raw_response.text()
+                            response = json.loads(response)
+                            try:
+                                allies = response['results']
+                                count = math.ceil(response['count'] / 20)
+                                t = PrettyTable()
+                                t.left_padding_width = 0
+                                t.right_padding_width = 0
+                                t.align = "l"
+                                t.field_names = ['Username', 'Clan']
+                                t.align = "l"
+                                for ally in allies:
+                                    username = ally['username']
+                                    group_tag = ally['group_tag']
+                            except KeyError:
+                                pass
+                            await message.edit(content=f'```{t.get_string(sortby="Username")} \n Page {page} of {count}```')
+                            
 def setup(bot):
     bot.add_cog(allies(bot))
